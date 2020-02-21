@@ -12,5 +12,9 @@ repositories {
 }
 
 dependencies {
+
+    // DropWizard Dependencies
+    compile group: 'io.dropwizard', name: 'dropwizard-core', version: "${dropwizardVersion}"
+
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
