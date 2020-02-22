@@ -25,7 +25,7 @@ public class AccountMapperTest {
 
     @Test
     public void entityToDtoTest() {
-        Account testAccountEntity = new Account("Chirag Jain", BigDecimal.valueOf(100.00));
+        Account testAccountEntity = new Account("Account Name", BigDecimal.valueOf(101.01));
         AccountDTO mappedAccountDTO = accountMapper.entityToDto(testAccountEntity);
 
         assertEquals(testAccountEntity.getAccountNumber(), mappedAccountDTO.getAccountNumber());
@@ -42,7 +42,7 @@ public class AccountMapperTest {
 
     @Test
     public void dtoToEntityTest() {
-        AccountDTO testAccountDto = new AccountDTO("Chirag Jain", BigDecimal.valueOf(100.00));
+        AccountDTO testAccountDto = new AccountDTO("Account NAme", BigDecimal.valueOf(101.01));
         Account mappedAccountEntity = accountMapper.dtoToEntity(testAccountDto);
 
         assertEquals(testAccountDto.getName(), mappedAccountEntity.getName());

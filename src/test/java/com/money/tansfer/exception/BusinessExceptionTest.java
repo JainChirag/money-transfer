@@ -11,7 +11,7 @@ import static org.junit.Assert.assertEquals;
 public class BusinessExceptionTest {
 
     @Test
-    public void toResponse_GivenAnException_ShouldReturnResponseCorrectly() {
+    public void mapBusinessExceptionToResponseTest() {
         int testStatusCode = 500;
         String testMessage = "Error occurred during processing";
         ErrorResponse testFailureResponse = new ErrorResponse(testStatusCode, testMessage);
@@ -22,8 +22,7 @@ public class BusinessExceptionTest {
 
         assertEquals("application", response.getMediaType().getType());
         assertEquals("json", response.getMediaType().getSubtype());
-        assertEquals(testFailureResponse, response.getEntity());
         assertEquals(testStatusCode, response.getStatus());
-
+        assertEquals(testFailureResponse, response.getEntity());
     }
 }

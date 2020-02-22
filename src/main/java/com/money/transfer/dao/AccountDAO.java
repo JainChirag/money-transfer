@@ -6,10 +6,10 @@ import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AccountDao extends AbstractDAO<Account> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AccountDao.class);
+public class AccountDAO extends AbstractDAO<Account> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccountDAO.class);
 
-    public AccountDao(SessionFactory sessionFactory) {
+    public AccountDAO(SessionFactory sessionFactory) {
         super(sessionFactory);
     }
 

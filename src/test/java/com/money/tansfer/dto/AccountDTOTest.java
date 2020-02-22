@@ -16,11 +16,10 @@ import static org.junit.Assert.assertEquals;
 
 public class AccountDTOTest {
 
-    private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = Jackson.newObjectMapper();
 
     private static AccountDTO testAccountDto;
     private static String accountDTOJson;
-
 
     @BeforeClass
     public static void setup() throws IOException {
@@ -33,15 +32,15 @@ public class AccountDTOTest {
 
     @Test
     public void jsonSerializationTest() throws Exception {
-        AccountDTO deserializedAccountDTO = MAPPER.readValue(accountDTOJson, AccountDTO.class);
-        final String expectedJsonString = MAPPER.writeValueAsString(deserializedAccountDTO);
-        final String actualSerializedJsonString = MAPPER.writeValueAsString(testAccountDto);
+        AccountDTO deserializedAccountDTO = OBJECT_MAPPER.readValue(accountDTOJson, AccountDTO.class);
+        final String expectedJsonString = OBJECT_MAPPER.writeValueAsString(deserializedAccountDTO);
+        final String actualSerializedJsonString = OBJECT_MAPPER.writeValueAsString(testAccountDto);
         assertEquals(expectedJsonString, actualSerializedJsonString);
     }
 
     @Test
     public void jsonDeserializationTest() throws Exception {
-        AccountDTO deserializedAccountDTO = MAPPER.readValue(accountDTOJson, AccountDTO.class);
+        AccountDTO deserializedAccountDTO = OBJECT_MAPPER.readValue(accountDTOJson, AccountDTO.class);
         assertEquals(testAccountDto, deserializedAccountDTO);
     }
 }

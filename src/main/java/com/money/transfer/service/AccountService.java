@@ -1,6 +1,6 @@
 package com.money.transfer.service;
 
-import com.money.transfer.dao.AccountDao;
+import com.money.transfer.dao.AccountDAO;
 import com.money.transfer.dto.AccountDTO;
 import com.money.transfer.exception.BusinessException;
 import com.money.transfer.exception.ErrorMessage;
@@ -17,10 +17,10 @@ public class AccountService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccountService.class);
 
-    private final AccountDao accountDao;
+    private final AccountDAO accountDao;
     private final AccountMapper accountMapper;
 
-    public AccountService(AccountDao accountDao, AccountMapper accountMapper) {
+    public AccountService(AccountDAO accountDao, AccountMapper accountMapper) {
         this.accountDao = accountDao;
         this.accountMapper = accountMapper;
     }

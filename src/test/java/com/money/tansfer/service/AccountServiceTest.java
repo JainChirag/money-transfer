@@ -1,13 +1,17 @@
 package com.money.tansfer.service;
 
-import com.money.transfer.dao.AccountDao;
+import com.money.transfer.dao.AccountDAO;
 import com.money.transfer.dto.AccountDTO;
 import com.money.transfer.exception.BusinessException;
+import com.money.transfer.exception.ErrorMessage;
 import com.money.transfer.mapper.AccountMapper;
 import com.money.transfer.model.Account;
 import com.money.transfer.service.AccountService;
+import org.hamcrest.CoreMatchers;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -23,10 +27,13 @@ public class AccountServiceTest {
     private AccountService accountService;
 
     @Mock
-    private AccountDao accountDao;
+    private AccountDAO accountDao;
 
     @Mock
     private AccountMapper accountMapper;
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Before
     public void setup() {
@@ -35,8 +42,8 @@ public class AccountServiceTest {
 
     @Test
     public void accountCreationTest() {
-        long testAccountId = 29;
-        String testAccountName = "Chirag Jain";
+        long testAccountId = 29L;
+        String testAccountName = "Account Name";
         BigDecimal testAmount = BigDecimal.valueOf(101.01);
 
         AccountDTO testAccountDTO = new AccountDTO(testAccountId, testAccountName, testAmount);
@@ -53,8 +60,8 @@ public class AccountServiceTest {
 
     @Test
     public void fetchValidAccountTest() throws BusinessException {
-        long testAccountId = 29;
-        String testAccountName = "Chirag Jain";
+        long testAccountId = 29L;
+        String testAccountName = "Account Name";
         BigDecimal testAmount = BigDecimal.valueOf(101.01);
 
         AccountDTO testAccountDTO = new AccountDTO(testAccountId, testAccountName, testAmount);
@@ -66,10 +73,13 @@ public class AccountServiceTest {
         assertEquals(testAccountDTO, accountService.get(testAccountId));
     }
 
-    @Test(expected = BusinessException.class)
+    @Test
     public void fetchInvalidAccountTest() throws BusinessException {
-        long testAccountId = 39;
+        long testAccountId = 39L;
         when(accountDao.findByAccountNumber(testAccountId)).thenReturn(null);
+
+        expectedException.expect(BusinessException.class);
+        expectedException.expectMessage(CoreMatchers.equalTo(ErrorMessage.ACCOUNT_NOT_FOUND.message()));
 
         accountService.get(testAccountId);
     }
