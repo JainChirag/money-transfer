@@ -1,8 +1,9 @@
 plugins {
     id 'java'
+    id "com.github.johnrengelman.shadow" version "4.0.3"
 }
 
-group 'org.example'
+group 'com.money.tansfer'
 version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
@@ -16,6 +17,7 @@ dependencies {
     // DropWizard Dependencies
     compile group: 'io.dropwizard', name: 'dropwizard-core', version: "${dropwizardVersion}"
     compile group: 'io.dropwizard', name: 'dropwizard-hibernate', version: "${dropwizardVersion}"
+    compile group: 'io.dropwizard', name: 'dropwizard-testing', version: "${dropwizardVersion}"
     compile group: 'io.dropwizard', name: 'dropwizard-client', version: "${dropwizardVersion}"
 
     // Hibernate
@@ -29,14 +31,24 @@ dependencies {
     testCompile group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
 }
 
-//create a single Jar with all dependencies
-task fatJar(type: Jar) {
+apply plugin: 'application'
+
+mainClassName = 'com.money.transfer.MoneyTransferApplication'
+
+run {
+    args = ['server', 'config.yml']
+}
+
+//Create a Shadow Jar with all dependencies
+shadowJar {
+    mergeServiceFiles()
+    exclude 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/*.SF'
     manifest {
-        attributes 'Implementation-Title': 'Gradle Jar File Example',
-                'Implementation-Version': version,
-                'Main-Class': 'MoneyTransferApplication'
+        attributes 'Implementation-Title': rootProject.name
+        attributes 'Implementation-Version': rootProject.version
+        attributes 'Implementation-Vendor-Id': rootProject.group
+        attributes 'Created-By': 'Gradle ' + gradle.gradleVersion
+        attributes 'Main-Class': mainClassName
     }
-    baseName = project.name + '-all'
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
+    archiveName 'money-transfer.jar'
 }
