@@ -11,6 +11,10 @@ Design and implement a RESTful API (including data model and the backing impleme
 * Gradle
 * JUnit
 * Mockito
+ 
+### Concurrency Management of Money Transfers:
+1. ```@UnitOfWork``` will automatically open a session, begin a transaction, perform database operations, commit the transaction, and finally close the session. If an exception is thrown, the transaction is rolled back
+2. ```Optimistic Lock``` with Hibernate is implemented by applying the @Version annotation to a version instance variable resulting in a VERSION column
 
 ### Running the application: ###
 In the terminal, go to project's root directory and run the following command
@@ -28,7 +32,3 @@ In the terminal, go to project's root directory and run the following command
  | POST        | /account                                        | {"name" : "Chirag","balance" : 1010.11}                                    | This endpoint creates a new account with given balance.           |
  | GET         | /account/{:account_id}                          |                                                                            | This endpoint fetches the details of a given account.             |
  | POST        | /tansfer                                        | {"sourceAccountNumber": 1,"destinationAccountNumber": 2,"amount": 10.11}   | This endpoint performs money transfers between given two accounts.|
- 
-### Concurrency Management of Money Transfers:
-1. ```@UnitOfWork``` will automatically open a session, begin a transaction, perform database operations, commit the transaction, and finally close the session. If an exception is thrown, the transaction is rolled back
-2. ```Optimistic Lock``` with Hibernate is implemented by applying the @Version annotation to a version instance variable resulting in a VERSION column
