@@ -29,6 +29,6 @@ In the terminal, go to project's root directory and run the following command
  
  | Http method | Endpoint                                        | Sample Request Body                                                        | Description                                                       |
  |-------------|-------------------------------------------------|----------------------------------------------------------------------------|-------------------------------------------------------------------|
- | POST        | /account                                        | {"name" : "Chirag","balance" : 1010.11}                                    | This endpoint creates a new account with given balance.           |
+ | POST        | /account                                        | {"name" : "Chirag", "balance" : 1010.11}                                   | This endpoint creates a new account with given balance.           |
  | GET         | /account/{:account_id}                          |                                                                            | This endpoint fetches the details of a given account.             |
- | POST        | /tansfer                                        | {"sourceAccountNumber": 1,"destinationAccountNumber": 2,"amount": 10.11}   | This endpoint performs money transfers between given two accounts.|
+ | POST        | /tansfer                                        | {"sourceAccountNumber": 1, "destinationAccountNumber": 2, "amount": 10.11} | This endpoint performs money transfers between given two accounts.|
