@@ -18,9 +18,12 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 public class TransactionIntegrationTest {
@@ -36,7 +39,7 @@ public class TransactionIntegrationTest {
     @Before
     public void setup() {
         HttpClientConfiguration httpClientConfiguration = new HttpClientConfiguration();
-        httpClientConfiguration.setTimeout(Duration.milliseconds(4000));
+        httpClientConfiguration.setTimeout(Duration.milliseconds(10000));
 
         HttpClientBuilder clientBuilder = new HttpClientBuilder(appRule.getEnvironment());
         clientBuilder.using(httpClientConfiguration);
@@ -119,6 +122,49 @@ public class TransactionIntegrationTest {
 
         BigDecimal expectedSourceAccountBalance = testSourceAccount.getBalance().subtract(transactionRequestDTO.getAmount());
         BigDecimal expectedDestinationAccountBalance = testDestinationAccount.getBalance().add(transactionRequestDTO.getAmount());
+
+        assertEquals(0, expectedSourceAccountBalance.compareTo(updatedSourceAccount.getBalance()));
+        assertEquals(0, expectedDestinationAccountBalance.compareTo(updatedDestinationAccount.getBalance()));
+    }
+
+    @Test
+    public void concurrentTransferRequestTest() throws ExecutionException, InterruptedException {
+        AccountDTO testSourceAccount = new AccountDTO("Source Account Name", BigDecimal.valueOf(100));
+        AccountDTO testDestinationAccount = new AccountDTO("Destination Account Name", BigDecimal.valueOf(200));
+        AccountDTO testSourceAccount1 = new AccountDTO("Source Account Name1", BigDecimal.valueOf(100));
+        AccountDTO testDestinationAccount1 = new AccountDTO("Destination Account Name2", BigDecimal.valueOf(200));
+
+        Response sourceAccountCreationResponse = createAccount(testSourceAccount);
+        Response destinationAccountCreationResponse = createAccount(testDestinationAccount);
+        Response sourceAccountCreationResponse1 = createAccount(testSourceAccount1);
+        Response destinationAccountCreationResponse1 = createAccount(testDestinationAccount1);
+
+        AccountDTO sourceAccountCreated = sourceAccountCreationResponse.readEntity(AccountDTO.class);
+        AccountDTO destinationAccountCreated = destinationAccountCreationResponse.readEntity(AccountDTO.class);
+        AccountDTO sourceAccountCreated1 = sourceAccountCreationResponse1.readEntity(AccountDTO.class);
+        AccountDTO destinationAccountCreated1 = destinationAccountCreationResponse1.readEntity(AccountDTO.class);
+
+        TransactionDTO transactionRequestDTO1 = new TransactionDTO(sourceAccountCreated.getAccountNumber(), destinationAccountCreated.getAccountNumber(), BigDecimal.valueOf(40));
+        TransactionDTO transactionRequestDTO2 = new TransactionDTO(sourceAccountCreated.getAccountNumber(), destinationAccountCreated.getAccountNumber(), BigDecimal.valueOf(40));
+
+        CompletableFuture<Response> responseCompletableFuture1 = CompletableFuture.supplyAsync(() -> performTransaction(transactionRequestDTO1));
+        CompletableFuture<Response> responseCompletableFuture2 = CompletableFuture.supplyAsync(() -> performTransaction(transactionRequestDTO2));
+
+        Response transactionResponse1 = responseCompletableFuture1.get();
+        Response transactionResponse2 = responseCompletableFuture2.get();
+        assertTrue((transactionResponse1.getStatus() == Response.Status.OK.getStatusCode() &&
+                transactionResponse2.getStatus() == Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()) ||
+                (transactionResponse1.getStatus() == Response.Status.INTERNAL_SERVER_ERROR.getStatusCode() &&
+                        transactionResponse2.getStatus() == Response.Status.OK.getStatusCode()));
+
+        Response updatedSourceAccountResponse = fetchAccount(sourceAccountCreated.getAccountNumber());
+        Response updatedDestinationAccountResponse = fetchAccount(destinationAccountCreated.getAccountNumber());
+
+        AccountDTO updatedSourceAccount = updatedSourceAccountResponse.readEntity(AccountDTO.class);
+        AccountDTO updatedDestinationAccount = updatedDestinationAccountResponse.readEntity(AccountDTO.class);
+
+        BigDecimal expectedSourceAccountBalance = testSourceAccount.getBalance().subtract(transactionRequestDTO1.getAmount());
+        BigDecimal expectedDestinationAccountBalance = testDestinationAccount.getBalance().add(transactionRequestDTO1.getAmount());
 
         assertEquals(0, expectedSourceAccountBalance.compareTo(updatedSourceAccount.getBalance()));
         assertEquals(0, expectedDestinationAccountBalance.compareTo(updatedDestinationAccount.getBalance()));
