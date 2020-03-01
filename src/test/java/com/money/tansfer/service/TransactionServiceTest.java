@@ -10,7 +10,6 @@ import com.money.transfer.model.Account;
 import com.money.transfer.model.Transaction;
 import com.money.transfer.service.TransactionService;
 import org.hamcrest.CoreMatchers;
-import org.hibernate.StaleStateException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -73,7 +72,6 @@ public class TransactionServiceTest {
         transactionService.processTransaction(transactionDTO);
     }
 
-
     @Test
     public void transactWithInsufficientBalanceTest() throws BusinessException {
         TransactionDTO transactionDTO = new TransactionDTO(29L, 39L, BigDecimal.valueOf(1000));
@@ -118,23 +116,5 @@ public class TransactionServiceTest {
         assertEquals(updatedDestinationAccount, accountEntityArgCaptor.getAllValues().get(1));
 
         assertEquals(testTransaction, transactionEntityArgCaptor.getAllValues().get(0));
-    }
-
-    @Test
-    public void databaseStateChangedBeforePersistenceTest() throws BusinessException {
-
-        TransactionDTO transactionDTO = new TransactionDTO(29L, 39L, BigDecimal.valueOf(40));
-
-        Account sourceAccount = new Account("Source Account Name", BigDecimal.valueOf(250));
-        Account destinationAccount = new Account("Destination Account Name", BigDecimal.valueOf(150));
-
-        when(accountDao.findByAccountNumber(transactionDTO.getSourceAccountNumber())).thenReturn(sourceAccount);
-        when(accountDao.findByAccountNumber(transactionDTO.getDestinationAccountNumber())).thenReturn(destinationAccount);
-        when(accountDao.saveOrUpdate(sourceAccount)).thenThrow(StaleStateException.class);
-
-        expectedException.expect(BusinessException.class);
-        expectedException.expectMessage(CoreMatchers.equalTo(ErrorMessage.SOURCE_ACCOUNT_STATE_CHANGED.message()));
-
-        transactionService.processTransaction(transactionDTO);
     }
 }

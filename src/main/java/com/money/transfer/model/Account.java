@@ -1,9 +1,7 @@
 package com.money.transfer.model;
 
-import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.OptimisticLockType;
 import org.hibernate.annotations.OptimisticLocking;
-import org.hibernate.annotations.SelectBeforeUpdate;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -11,8 +9,6 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "account")
-@SelectBeforeUpdate
-@DynamicUpdate
 @OptimisticLocking(type = OptimisticLockType.VERSION)
 public class Account {
     @Id

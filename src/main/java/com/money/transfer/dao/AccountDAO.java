@@ -13,13 +13,13 @@ public class AccountDAO extends AbstractDAO<Account> {
         super(sessionFactory);
     }
 
-    public Account saveOrUpdate(Account Account) {
-        LOGGER.debug("Saving/Updating Account: " + Account.toString());
-        return persist(Account);
+    public Account saveOrUpdate(Account account) {
+        LOGGER.info("Saving/Updating Account: " + account.toString());
+        return persist(account);
     }
 
     public Account findByAccountNumber(long accountNumber) {
-        LOGGER.debug("Fetching account info for account number: " + accountNumber);
+        LOGGER.info("Fetching account info for account number: " + accountNumber);
         return currentSession().get(Account.class, accountNumber);
     }
 

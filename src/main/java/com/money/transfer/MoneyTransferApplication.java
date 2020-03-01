@@ -5,6 +5,7 @@ import com.money.transfer.controller.TransactionController;
 import com.money.transfer.dao.AccountDAO;
 import com.money.transfer.dao.TransactionDAO;
 import com.money.transfer.exception.BusinessException;
+import com.money.transfer.exception.UncaughtException;
 import com.money.transfer.mapper.AccountMapper;
 import com.money.transfer.mapper.TransactionMapper;
 import com.money.transfer.model.Account;
@@ -58,6 +59,7 @@ public class MoneyTransferApplication extends Application<ApplicationConfigurati
         environment.jersey().register(new AccountController(accountService));
         environment.jersey().register(new TransactionController(transactionService));
         environment.jersey().register(new BusinessException());
+        environment.jersey().register(new UncaughtException());
 
     }
 }

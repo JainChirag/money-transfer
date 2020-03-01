@@ -9,11 +9,9 @@ import com.money.transfer.exception.ErrorResponse;
 import com.money.transfer.mapper.TransactionMapper;
 import com.money.transfer.model.Account;
 import com.money.transfer.model.Transaction;
-import org.hibernate.StaleStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.transaction.Transactional;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 
@@ -32,7 +30,6 @@ public class TransactionService {
         this.transactionMapper = transactionMapper;
     }
 
-    @Transactional
     public TransactionDTO processTransaction(TransactionDTO transactionDTO) throws BusinessException {
         BigDecimal transferAmount = transactionDTO.getAmount();
 
@@ -60,15 +57,16 @@ public class TransactionService {
             ErrorResponse errorResponse = new ErrorResponse(Response.Status.BAD_REQUEST.getStatusCode(), ErrorMessage.INSUFFICIENT_BALANCE.message());
             throw new BusinessException(errorResponse);
         }
+        LOGGER.info("Valid Transfer Request");
     }
 
     private Transaction performTransaction(Account sourceAccount, Account destinationAccount, TransactionDTO transactionDTO) throws BusinessException {
         BigDecimal transferAmount = transactionDTO.getAmount();
+
         debitAccount(sourceAccount, transferAmount);
         creditAccount(destinationAccount, transferAmount);
 
         Transaction transaction = new Transaction(sourceAccount.getAccountNumber(), destinationAccount.getAccountNumber(), transferAmount);
-
         return transactionDAO.saveOrUpdate(transaction);
     }
 
@@ -79,23 +77,12 @@ public class TransactionService {
     private void debitAccount(Account account, BigDecimal debitAmount) throws BusinessException {
         BigDecimal newBalance = account.getBalance().subtract(debitAmount);
         account.setBalance(newBalance);
-        try {
-            accountDao.saveOrUpdate(account);
-        } catch (StaleStateException ex) {
-            ErrorResponse errorResponse = new ErrorResponse(Response.Status.BAD_REQUEST.getStatusCode(), ErrorMessage.SOURCE_ACCOUNT_STATE_CHANGED.message());
-            throw new BusinessException(errorResponse);
-        }
+        accountDao.saveOrUpdate(account);
     }
 
     private void creditAccount(Account account, BigDecimal creditAmount) throws BusinessException {
         BigDecimal newBalance = account.getBalance().add(creditAmount);
         account.setBalance(newBalance);
-
-        try {
-            accountDao.saveOrUpdate(account);
-        } catch (StaleStateException ex) {
-            ErrorResponse errorResponse = new ErrorResponse(Response.Status.BAD_REQUEST.getStatusCode(), ErrorMessage.DESTINATION_ACCOUNT_STATE_CHANGED.message());
-            throw new BusinessException(errorResponse);
-        }
+        accountDao.saveOrUpdate(account);
     }
 }
